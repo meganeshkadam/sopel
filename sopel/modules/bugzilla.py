@@ -71,6 +71,7 @@ def show_bug(bot, trigger, match=None):
 
     if error:
         LOGGER.warning('Bugzilla error: %s', error)
+        bot.say('[BUGZILLA] ^^, is private')
         return
 
     message = ('[BUGZILLA] %s | Product: %s | Component: %s | Version: %s | ' +
