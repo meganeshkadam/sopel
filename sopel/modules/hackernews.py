@@ -9,7 +9,9 @@ This module relies on https://hacker-news.firebaseio.com
 from __future__ import unicode_literals, absolute_import, print_function, division
 import requests
 import sopel.module
+from sopel.formatting import bold as bold_text
 from sopel.logger import get_logger
+
 
 LOGGER = get_logger(__name__)
 
@@ -46,15 +48,17 @@ def hackernews(bot, trigger):
             for item in data.json()[:count]:
                 data = requests.get("{}item/{}.json".format(
                     base_uri, item)).json()
-                message = "[Hacker News] URL: {}".format(data['url'])
-                bot.say(message)
+                message = "[Hacker News] Title: {}, Url: {}".format(
+                    data['title'], data['url'])
+                bot.say(bold_text(message))
         else:
-            message = "[Hacker News] {}".format(data.json()['error'])
+            bot.say("[Hacker News] {}".format(data.json()['error']))
     except KeyError as err:
         message = "[Hacker News] I can't find news with the term {}. Valid \
 terms are {}".format(err, ", ".join(items.keys()))
         LOGGER.warning(message)
         bot.say(message)
+
 
 if __name__ == "__main__":
     from sopel.test_tools import run_example_tests
