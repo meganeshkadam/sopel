@@ -30,7 +30,6 @@ def hackernews(bot, trigger):
 
     base_uri = "https://news.ycombinator.com/item"
     base_api = "https://hacker-news.firebaseio.com/v0/"
-
     user_input = trigger.group().split()
 
     try:
