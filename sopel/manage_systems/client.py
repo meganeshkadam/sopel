@@ -247,51 +247,34 @@ class RHOS(Setup):
         return table
 
 
-
-class IRCBot(RHOS):
-    def all_versions(self):
-        response = requests.get(self.url)
-        if response.status_code == 200:
-            for entry in response.json():
-                yield "|id: {} |ver: {} |Deployment: {}({}) |Host: {} |".format(entry['id'],
-                                    entry['version'],
-                                    entry['deployment_type'],
-                                    entry['environment_type'],
-                                    entry['ip_address'])
-
-
 if __name__ == '__main__':
-    # obj = RHOS('10.65.223.141', '8000', 'rhos')
-    # print("All version")
-    # print(obj.all_versions())
-    # print("in_use=False")
-    # print(obj.version())
-    # print("In use")
-    # print(obj.version(in_use=True))
-    # print("7")
-    # print(obj.version(7))
-    # print("7, in_use=True")
-    # print(obj.version(7, in_use=True))
-    # print("9, in_use=True")
-    # print(obj.version(9, in_use=True))
-    # print("10, HA")
-    # print(obj.version(10, 'HA'))
-    # print("9, PACKSTACK")
-    # print(obj.version(9, 'PACKSTACK'))
-    # print("7, PACKSTACK")
-    # print(obj.version(7, 'PACKSTACK'))
-    # print("7, PACKSTACK in_use=True")
-    # print(obj.version(7, 'PACKSTACK', in_use=True))
-    # print(obj.detail(1))
-    # print(obj.detail(3))
-    # print(obj.detail(26))
-    # print(obj.reserve(7, "pbandark@redhat.com"))
-    # print(obj.release(7))
-    # print(obj.add('5', '10.10.10.10', 'root', 'RedHat1!',
-    #               'pbandark@redhat.com', 'test spec'))
-    # print(obj.delete(2))
-    # print(obj.delete(6))
-
-    irc = IRCBot('10.65.223.141', '8000', 'rhos')
-    for i in irc.all_versions():
-        print(i)
+    obj = RHOS('localhost', '8000', 'rhos')
+    print("All version")
+    print(obj.all_versions())
+    print("in_use=False")
+    print(obj.version())
+    print("In use")
+    print(obj.version(in_use=True))
+    print("7")
+    print(obj.version(7))
+    print("7, in_use=True")
+    print(obj.version(7, in_use=True))
+    print("9, in_use=True")
+    print(obj.version(9, in_use=True))
+    print("10, HA")
+    print(obj.version(10, 'HA'))
+    print("9, PACKSTACK")
+    print(obj.version(9, 'PACKSTACK'))
+    print("7, PACKSTACK")
+    print(obj.version(7, 'PACKSTACK'))
+    print("7, PACKSTACK in_use=True")
+    print(obj.version(7, 'PACKSTACK', in_use=True))
+    print(obj.detail(1))
+    print(obj.detail(3))
+    print(obj.detail(26))
+    print(obj.reserve(7, "pbandark@redhat.com"))
+    print(obj.release(7))
+    print(obj.add('5', '10.10.10.10', 'root', 'RedHat1!',
+                  'pbandark@redhat.com', 'test spec'))
+    print(obj.delete(2))
+    print(obj.delete(6))
