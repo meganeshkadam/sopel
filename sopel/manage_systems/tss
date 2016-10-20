@@ -1,0 +1,145 @@
+#!/usr/bin/env python
+# CLI for client.py
+import argparse
+import configparser
+
+from client import RHOS
+from utils.utils import get_choices
+
+config = configparser.ConfigParser()
+config.read('tss.conf')
+default = config['DEFAULT']
+user = config['USER']
+
+default_apiserver = default.get('ApiServer', 'localhost')
+default_port = default.get('Port', 8000)
+
+user_product = user.get('Product', 'rhos')
+
+
+base_parser = argparse.ArgumentParser(
+    description='A system management software(0.9-beta)',
+    prog='tss',
+    epilog='Refer ReadMe.md for more info.')
+base_parser.add_argument('--api-server', default=default_apiserver,
+                         type=str,
+                         help='ReST API server IP address or hostname')
+base_parser.add_argument('--port', '-p', default=default_port,
+                         help='ReST API server port.')
+base_parser.add_argument('--product', default=user_product,
+                         choices=['rhos', 'cfme'],
+                         help="Product name")
+base_parser.add_argument('--product-version',
+                         help="Product version")
+base_parser.add_argument('--in-use', action='store_true',
+                         help="Show system(s) in-use .")
+base_parser.add_argument('--all', '-a',  action='store_true',
+                         help="Show all systems")
+# FIXME: --environment-type, --deployment-type & --virtual-appliance
+# should be moved to 'add' subcommand
+base_parser.add_argument('--environment-type',
+                         choices=get_choices('rhos', 'environment_type'),
+                         help="Environment type. Valid for product: rhos.")
+base_parser.add_argument('--deployment-type',
+                         choices=get_choices('rhos', 'deployment_type'),
+                         help="Deployment type. Valid for product: rhos.")
+base_parser.add_argument('--virtual-appliance',
+                         choices=get_choices('cfme', 'virtual_appliance'),
+                         help="Virtual appliance type. \
+                         Valid for product: cfme.")
+base_parser.add_argument('--verbose', '-v',
+                         action='count',
+                         help="Verbose")
+
+subparsers = base_parser.add_subparsers(
+    title='subcommands',
+    dest='subcommand',
+    description='Valid subcommands',
+    help='Sub-commands help')
+
+
+detail = subparsers.add_parser('detail',
+                               aliases=['d'],
+                               help='System detail')
+detail.add_argument('systemid',
+                    help='System ID')
+
+
+reserve = subparsers.add_parser('reserve',
+                                aliases=['r'],
+                                help='Reserve system')
+reserve.add_argument('systemid',
+                     help='System ID')
+reserve.add_argument('email',
+                     help="User\'s email who wants to reserve system")
+
+
+release = subparsers.add_parser('release',
+                                aliases=['rel'],
+                                help='Release system')
+release.add_argument('systemid',
+                     help='System ID')
+
+# FIXME: 'add' subcommand options should be specific to product
+add = subparsers.add_parser('add',
+                            aliases=['a'],
+                            help='Add new system')
+add.add_argument('--version',
+                 required=True,
+                 help='Product version. Ex 7, 4.0')
+add.add_argument('--ip-address',
+                 required=True,
+                 help='IP Address or FQDN')
+add.add_argument('--sys-username',
+                 required=True,
+                 help='New system\'s username')
+add.add_argument('--sys-password',
+                 required=True,
+                 help='New system\'s password')
+add.add_argument('--owner',
+                 required=True,
+                 help='User\'s email who own the system')
+add.add_argument('--specs',
+                 required=True,
+                 help='System specifications(Ex. "vCPUs:12\\n32GB RAM)')
+
+
+delete = subparsers.add_parser('delete',
+                               aliases=['del'],
+                               help='Delete system')
+delete.add_argument('systemid',
+                    help='System ID')
+
+'''
+rhos = argparse.ArgumentParser(
+    add_help=False,
+    parents=[add])
+rhos.add_argument('--environment-type')
+rhos.add_argument('--deployment-type')
+
+cfme = argparse.ArgumentParser(
+    add_help=False,
+    parents=[base_parser])
+cfme.add_argument('--virtual-appliance')
+
+args = rhos.parse_args()
+args = cfme.parse_args()
+args = base_parser.parse_args()
+'''
+
+if __name__ == '__main__':
+    args = base_parser.parse_args()
+    inst = RHOS(args.api_server, args.port, args.product)
+    if not args.subcommand:
+        print(inst.all_versions()) if args.all else print(inst.version(version=args.product_version,
+                                                                       deployment_type=args.deployment_type,
+                                                                       in_use=args.in_use))
+    elif args.subcommand == 'detail':
+        print(inst.detail(args.systemid))
+    elif args.subcommand == 'reserve':
+        print(inst.reserve(systemid=args.systemid,
+              user_email=args.email))
+    elif args.subcommand == 'release':
+        print(inst.release(systemid=args.systemid))
+    elif args.subcommand == 'delete':
+        print(inst.delete(systemid=args.systemid))

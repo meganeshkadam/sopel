@@ -1,0 +1,261 @@
+#+TITLE: How to use client?
+#+DATE: \today
+#+OPTIONS: texht:t
+#+OPTIONS: toc:nil email:nil
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS:
+#+LATEX_HEADER_EXTRA:
+#+LaTeX_HEADER: \usepackage[a4paper, landscape, margin=1in, total={6in, 10in}]{geometry}
+#+LaTeX_HEADER: \usepackage[utf8]{inputenc}
+#+LaTeX_HEADER: \usepackage[english]{babel}
+
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+
+#+LaTeX_HEADER: \renewcommand{\familydefault}{\rmdefault}
+#+LaTeX_HEADER: \usepackage[usenames, dvipsnames]{xcolor}
+#+LaTeX_HEADER: \pagenumbering{arabic}
+#+LaTeX_HEADER: \usepackage{hyperref}
+#+LaTeX_HEADER: \hypersetup{colorlinks=true, linkcolor=blue, filecolor=magenta, urlcolor=cyan}
+#+LaTeX_HEADER: \urlstyle{same}
+
+
+** Find help using =-h/--help=
+*** Client specific help
+**** =tss --help=
+     #+BEGIN_SRC sh
+       ./tss --help
+       usage: tss [-h] [--api-server API_SERVER] [--port PORT]
+                  [--product {rhos,cfme}] [--product-version PRODUCT_VERSION]
+                  [--in-use] [--all] [--environment-type {VIRTUAL,PHYSICAL}]
+                  [--deployment-type {HA,PACKSTACK,NO-HA}]
+                  [--virtual-appliance {REDHAT,OPENSTACK,VMWARE,AZURE,GCE,SCVMM}]
+                  [--verbose]
+                  {detail,d,reserve,r,release,rel,add,a,delete,del} ...
+
+       A system management software(0.9-beta)
+
+       optional arguments:
+         -h, --help            show this help message and exit
+         --api-server API_SERVER
+                               ReST API server IP address or hostname
+         --port PORT, -p PORT  ReST API server port.
+         --product {rhos,cfme}
+                               Product name
+         --product-version PRODUCT_VERSION
+                               Product version
+         --in-use              Show system(s) in-use .
+         --all, -a             Show all systems
+         --environment-type {VIRTUAL,PHYSICAL}
+                               Environment type. Valid for product: rhos.
+         --deployment-type {HA,PACKSTACK,NO-HA}
+                               Deployment type. Valid for product: rhos.
+         --virtual-appliance {REDHAT,OPENSTACK,VMWARE,AZURE,GCE,SCVMM}
+                               Virtual appliance type. Valid for product: cfme.
+         --verbose, -v         Verbose
+
+       subcommands:
+         Valid subcommands
+
+         {detail,d,reserve,r,release,rel,add,a,delete,del}
+                               Sub-commands help
+           detail (d)          System detail
+           reserve (r)         Reserve system
+           release (rel)       Release system
+           add (a)             Add new system
+           delete (del)        Delete system
+
+       Refer ReadMe.md for more info.
+     #+END_SRC
+
+**** Subcommand help(=delete=)
+     #+BEGIN_SRC sh
+       ./tss delete -h
+       usage: tss delete [-h] systemid
+
+       positional arguments:
+         systemid    System ID
+
+       optional arguments:
+         -h, --help  show this help message and exit
+     #+END_SRC
+
+**** Subcommand help(=reserve=)
+     #+BEGIN_SRC sh
+       ./tss reserve -h
+       usage: tss reserve [-h] systemid email
+
+       positional arguments:
+         systemid    System ID
+         email       User's email who wants to reserve system
+
+       optional arguments:
+         -h, --help  show this help message and exit
+     #+END_SRC
+
+**** Subcommand help(=release=)
+     #+BEGIN_SRC sh
+       ./tss release -h
+       usage: tss release [-h] systemid
+
+       positional arguments:
+         systemid    System ID
+
+       optional arguments:
+         -h, --help  show this help message and exit
+     #+END_SRC
+
+**** Subcommand help(=add=)
+     #+BEGIN_SRC sh
+       ./tss add -h
+       usage: tss add [-h] --version VERSION --ip-address IP_ADDRESS
+                  --sys-username SYS_USERNAME --sys-password SYS_PASSWORD
+                  --owner OWNER --specs SPECS
+
+       optional arguments:
+         -h, --help            show this help message and exit
+         --version VERSION     Product version. Ex 7, 4.0
+         --ip-address IP_ADDRESS
+                               IP Address or FQDN
+         --sys-username SYS_USERNAME
+                               New systems username
+         --sys-password SYS_PASSWORD
+                               New systems password
+         --owner OWNER         Users email who own the system
+         --specs SPECS         System specifications(Ex. "vCPUs:12\n32GB RAM")
+     #+END_SRC
+
+
+** What works? (/with examples/)
+*** Show all (product specific) systems
+	#+BEGIN_SRC sh
+      ./tss --all
+      +----+---------+-----------------+-------------------------------------+------------------+--------+-------------------+
+      | id | version | deployment_type |              ip_address             | environment_type | in_use |      used_by      |
+      +----+---------+-----------------+-------------------------------------+------------------+--------+-------------------+
+      | 1  |   9.0   |        HA       | dell-r430-17.gsslab.pnq2.redhat.com |     PHYSICAL     | False  |         --        |
+      | 3  |   7.0   |    PACKSTACK    |               10.0.0.2              |     VIRTUAL      | False  |         --        |
+      | 4  |   8.0   |        HA       |               10.0.0.4              |     PHYSICAL     | False  |         --        |
+      | 5  |   8.0   |      NO-HA      |           fqdn.example.com          |     VIRTUAL      |  True  | owner@example.com |
+      | 7  |   7.0   |    PACKSTACK    |            10.65.223.141            |     PHYSICAL     | False  |         --        |
+      | 8  |   8.0   |        HA       |              10.45.6.7              |     PHYSICAL     | False  |         --        |
+      | 9  |   9.0   |        HA       |              10.45.6.17             |     PHYSICAL     |  True  | owner@example.com |
+      | 10 |   6.0   |      NO-HA      |              172.25.1.1             |     VIRTUAL      | False  |         --        |
+      | 11 |   5.0   |    PACKSTACK    |             10.10.10.10             |     VIRTUAL      | False  |         --        |
+      | 12 |   5.0   |    PACKSTACK    |             10.10.10.10             |     VIRTUAL      | False  |         --        |
+      | 13 |   5.0   |    PACKSTACK    |             10.10.10.10             |     VIRTUAL      | False  |         --        |
+      | 14 |   5.0   |    PACKSTACK    |             10.10.10.10             |     VIRTUAL      | False  |         --        |
+      | 15 |   5.0   |    PACKSTACK    |             10.10.10.10             |     VIRTUAL      | False  |         --        |
+      | 16 |   5.0   |    PACKSTACK    |             10.10.10.10             |     VIRTUAL      | False  |         --        |
+      | 17 |   5.0   |    PACKSTACK    |             10.10.10.10             |     VIRTUAL      | False  |         --        |
+      | 18 |   5.0   |    PACKSTACK    |             10.10.10.10             |     VIRTUAL      | False  |         --        |
+      | 19 |   5.0   |    PACKSTACK    |             10.10.10.10             |     VIRTUAL      | False  |         --        |
+      +----+---------+-----------------+-------------------------------------+------------------+--------+-------------------+
+	#+END_SRC
+
+*** Show un-used systems
+	#+BEGIN_SRC sh
+      ./tss
+      +----+---------+-----------------+-------------------------------------+------------------+--------+-------------------+
+      | id | version | deployment_type |              ip_address             | environment_type | in_use |      used_by      |
+      +----+---------+-----------------+-------------------------------------+------------------+--------+-------------------+
+      | 1  |   9.0   |        HA       | dell-r430-17.gsslab.pnq2.redhat.com |     PHYSICAL     | False  |                   |
+      | 3  |   7.0   |    PACKSTACK    |               10.0.0.2              |     VIRTUAL      | False  |                   |
+      | 4  |   8.0   |        HA       |               10.0.0.4              |     PHYSICAL     | False  |                   |
+      | 7  |   7.0   |    PACKSTACK    |            10.65.223.141            |     PHYSICAL     | False  |                   |
+      | 8  |   8.0   |        HA       |              10.45.6.7              |     PHYSICAL     | False  |                   |
+      | 10 |   6.0   |      NO-HA      |              172.25.1.1             |     VIRTUAL      | False  |                   |
+      | 23 |   8.0   |      NO-HA      |               10.1.2.3              |     PHYSICAL     | False  |                   |
+      +----+---------+-----------------+-------------------------------------+------------------+--------+-------------------+
+	#+END_SRC
+
+*** Show in-use systems
+	#+BEGIN_SRC sh
+      ./tss --in-use
+      +----+---------+-----------------+------------------+------------------+--------+-------------------+
+      | id | version | deployment_type |    ip_address    | environment_type | in_use |      used_by      |
+      +----+---------+-----------------+------------------+------------------+--------+-------------------+
+      | 5  |   8.0   |      NO-HA      | fqdn.example.com |     VIRTUAL      |  True  | owner@example.com |
+      | 9  |   9.0   |        HA       |    10.45.6.17    |     PHYSICAL     |  True  | owner@example.com |
+      +----+---------+-----------------+------------------+------------------+--------+-------------------+
+	#+END_SRC
+
+*** Show RHOSP 7 systems
+	#+BEGIN_SRC sh
+      ./tss --product-version 7
+      +----+---------+-----------------+---------------+------------------+--------+---------+
+      | id | version | deployment_type |   ip_address  | environment_type | in_use | used_by |
+      +----+---------+-----------------+---------------+------------------+--------+---------+
+      | 3  |   7.0   |    PACKSTACK    |    10.0.0.2   |     VIRTUAL      | False  |    --   |
+      | 7  |   7.0   |    PACKSTACK    | 10.65.223.141 |     PHYSICAL     | False  |    --   |
+      +----+---------+-----------------+---------------+------------------+--------+---------+
+	#+END_SRC
+
+*** Show RHOSP 9 systems which are currently in use
+	#+BEGIN_SRC sh
+      ./tss --product-version 9 --in-use
+      +----+---------+-----------------+------------+------------------+--------+-------------------+
+      | id | version | deployment_type | ip_address | environment_type | in_use |      used_by      |
+      +----+---------+-----------------+------------+------------------+--------+-------------------+
+      | 9  |   9.0   |        HA       | 10.45.6.17 |     PHYSICAL     |  True  | owner@example.com |
+      +----+---------+-----------------+------------+------------------+--------+-------------------+
+	#+END_SRC
+
+*** Show High Available setup
+	#+BEGIN_SRC sh
+      ./tss --deployment-type HA
+      +----+---------+-----------------+-------------------------------------+------------------+--------+---------+
+      | id | version | deployment_type |              ip_address             | environment_type | in_use | used_by |
+      +----+---------+-----------------+-------------------------------------+------------------+--------+---------+
+      | 1  |   9.0   |        HA       | dell-r430-17.gsslab.pnq2.redhat.com |     PHYSICAL     | False  |    --   |
+      | 4  |   8.0   |        HA       |               10.0.0.4              |     PHYSICAL     | False  |    --   |
+      | 8  |   8.0   |        HA       |              10.45.6.7              |     PHYSICAL     | False  |    --   |
+      +----+---------+-----------------+-------------------------------------+------------------+--------+---------+
+	#+END_SRC
+*** Reserve system(Use =id= to reserve a system)
+	#+BEGIN_SRC sh
+      ./tss reserve 7 psachin@redhat.com
+      +----+---------+---------------+--------------+--------------+----------------+
+      | id | version |   ip_address  | sys_username | sys_password | Port 22 status |
+      +----+---------+---------------+--------------+--------------+----------------+
+      | 7  |   7.0   | 10.65.223.141 |     root     |  admin@123   |     closed     |
+      +----+---------+---------------+--------------+--------------+----------------+
+	#+END_SRC
+
+*** Show system detail
+	#+BEGIN_SRC sh
+       ./tss detail 7
+      +----+---------+---------------+------------------+-----------------+--------+--------------------+
+      | id | version |   ip_address  | environment_type | deployment_type | in_use |      used_by       |
+      +----+---------+---------------+------------------+-----------------+--------+--------------------+
+      | 7  |   7.0   | 10.65.223.141 |     PHYSICAL     |    PACKSTACK    |  True  | psachin@redhat.com |
+      |    |         |               |                  |                 |        |                    |
+      |    |         |               |                  |                 |        |                    |
+      +----+---------+---------------+------------------+-----------------+--------+--------------------+
+      +----------------+------------------+-------------+----------------+
+      |     owner      |      specs       | reserved_on | Port 22 status |
+      +----------------+------------------+-------------+----------------+
+      | root@email.com | 3-CPUS, 12GB RAM |     None    |     closed     |
+      |                |    BAREMETAL     |             |                |
+      +----------------+------------------+-------------+----------------+
+	#+END_SRC
+
+*** Release system
+	#+BEGIN_SRC sh
+      ./tss release 7
+      +----+---------+---------------+----------+
+      | id | version |   ip_address  |  status  |
+      +----+---------+---------------+----------+
+      | 7  |   7.0   | 10.65.223.141 | RELEASED |
+      +----+---------+---------------+----------+
+	#+END_SRC
+
+*** Delete system
+	#+BEGIN_SRC sh
+      ./tss delete 8
+      +----+------------+---------+
+      | id | ip_address |  status |
+      +----+------------+---------+
+      | 8  | 10.45.6.7  | Deleted |
+      +----+------------+---------+
+	#+END_SRC

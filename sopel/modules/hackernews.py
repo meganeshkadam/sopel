@@ -28,7 +28,8 @@ def hackernews(bot, trigger):
         'beststories': 'beststories',
     }
 
-    base_uri = "https://hacker-news.firebaseio.com/v0/"
+    base_uri = "https://news.ycombinator.com/item"
+    base_api = "https://hacker-news.firebaseio.com/v0/"
     user_input = trigger.group().split()
 
     try:
@@ -42,15 +43,18 @@ def hackernews(bot, trigger):
         count = 1
 
     try:
-        uri = "{}{}.json".format(base_uri, items[user_item])
+        uri = "{}{}.json".format(base_api, items[user_item])
         data = requests.get(uri)
         if 'error' not in data.json():
             for item in data.json()[:count]:
                 data = requests.get("{}item/{}.json".format(
-                    base_uri, item)).json()
-                message = "[Hacker News] Title: {}, Url: {}".format(
-                    data['title'], data['url'])
-                bot.say(bold_text(message))
+                    base_api, item)).json()
+                message = "{} Title: {} | Post: {} | Url: {}".format(
+                    bold_text("[Hacker News]"),
+                    data['title'],
+                    (base_uri + "?id=" + str(item)),
+                    data['url'])
+                bot.say(message)
         else:
             bot.say("[Hacker News] {}".format(data.json()['error']))
     except KeyError as err:
