@@ -16,7 +16,7 @@ from sopel.manage_systems.bot_client import IRCBot
 LOGGER = get_logger(__name__)
 
 # TODO: Should go in sopel config
-rhos = IRCBot('10.65.223.141', '8000', 'rhos')
+rhos = IRCBot('localhost', '8000', 'rhos')
 
 @sopel.module.commands('tss', 'testsystemsearch')
 def search_system(bot, trigger):
@@ -49,10 +49,12 @@ def search_system(bot, trigger):
                 bot.reply("Sending you list of in-use systems in a private message")
                 for system in rhos.version(in_use=True):
                     bot.say(system, trigger.nick)
+            elif arg_one.startswith('--') and arg_one not in ['--in-use', '--all']:
+                bot.reply("{} required additional arguments".format(arg_one))
             else:
                 bot.reply("Sending you list of systems(with RHOSP" +
                           " version {}) in a private message".format(user_input[1]))
-                for system in rhos.version(version=user_input[1]):
+                for system in rhos.version(version=arg_one):
                     bot.say(system, trigger.nick)
         except:
             pass
