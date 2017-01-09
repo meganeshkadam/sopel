@@ -1,6 +1,9 @@
+# dnf install enchant
 xmltodict
 pytz
 praw
 pyenchant
 pygeoip
 requests
+python-nmap
+prettytable
