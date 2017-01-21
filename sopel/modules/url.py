@@ -184,7 +184,11 @@ def check_callbacks(bot, trigger, url, run=True):
 
 def find_title(url, verify=True):
     """Return the title for the given URL."""
-    response = requests.get(url, stream=True, verify=verify)
+    try:
+        response = requests.get(url, stream=True, verify=verify)
+    except requests.exceptions.ConnectionError:
+        return None
+
     try:
         content = ''
         for byte in response.iter_content(chunk_size=512, decode_unicode=True):
